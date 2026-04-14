@@ -1,0 +1,76 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ewallet-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: ewallet_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  user-service:
+    build: ./user-service
+    container_name: ewallet-user-service
+    ports:
+      - "3001:3001"
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: root123
+      DB_NAME: ewallet_db
+      PORT: 3001
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  payment-service:
+    build: ./payment-service
+    container_name: ewallet-payment-service
+    ports:
+      - "3002:3002"
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: root123
+      DB_NAME: ewallet_db
+      PORT: 3002
+      USER_SERVICE_URL: http://user-service:3001
+    depends_on:
+      mysql:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: ewallet-api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      USER_SERVICE_URL: http://user-service:3001
+      PAYMENT_SERVICE_URL: http://payment-service:3002
+      PORT: 3000
+    depends_on:
+      - user-service
+      - payment-service
+
+  frontend:
+    build: ./frontend
+    container_name: ewallet-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - api-gateway
+
+volumes:
+  mysql-data:
