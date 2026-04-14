@@ -1,0 +1,182 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Order Service API",
+    "version": "1.0.0",
+    "description": "Microservice untuk mengelola pesanan pada sistem E-Commerce SOA. Service ini berkomunikasi dengan User Service dan Product Service untuk validasi data."
+  },
+  "servers": [
+    { "url": "http://localhost:3003", "description": "Order Service" },
+    { "url": "http://localhost:3000", "description": "API Gateway" }
+  ],
+  "paths": {
+    "/api/orders": {
+      "get": {
+        "summary": "Mendapatkan semua pesanan",
+        "tags": ["Orders"],
+        "responses": {
+          "200": {
+            "description": "Daftar semua order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "count": { "type": "integer" },
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Order" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Membuat order baru (memanggil User Service & Product Service)",
+        "description": "Endpoint ini mendemonstrasikan integrasi antar service (SOA):\n1. Memanggil User Service untuk validasi user\n2. Memanggil Product Service untuk validasi dan mengambil data produk\n3. Menghitung total harga\n4. Menyimpan order ke database",
+        "tags": ["Orders"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/OrderInput" },
+              "example": {
+                "userId": "60d5ec49f1b2c72b9c8e4d3a",
+                "items": [
+                  { "productId": "60d5ec49f1b2c72b9c8e4d3b", "quantity": 2 }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Order berhasil dibuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": { "$ref": "#/components/schemas/Order" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Validasi gagal atau user/produk tidak ditemukan" },
+          "503": { "description": "Service lain tidak tersedia" }
+        }
+      }
+    },
+    "/api/orders/{id}": {
+      "get": {
+        "summary": "Mendapatkan order berdasarkan ID",
+        "tags": ["Orders"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Data order ditemukan" },
+          "404": { "description": "Order tidak ditemukan" }
+        }
+      },
+      "delete": {
+        "summary": "Menghapus/membatalkan order",
+        "tags": ["Orders"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Order berhasil dihapus" },
+          "404": { "description": "Order tidak ditemukan" }
+        }
+      }
+    },
+    "/api/orders/{id}/status": {
+      "put": {
+        "summary": "Mengupdate status order",
+        "tags": ["Orders"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/StatusInput" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Status order berhasil diupdate" },
+          "404": { "description": "Order tidak ditemukan" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Order": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "userId": { "type": "string", "example": "60d5ec49f1b2c72b9c8e4d3a" },
+          "userName": { "type": "string", "example": "Budi Santoso" },
+          "userEmail": { "type": "string", "example": "budi@example.com" },
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/OrderItem" }
+          },
+          "totalPrice": { "type": "number", "example": 30000000 },
+          "status": { "type": "string", "enum": ["pending", "confirmed", "shipped", "delivered", "cancelled"], "example": "pending" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "OrderItem": {
+        "type": "object",
+        "properties": {
+          "productId": { "type": "string", "example": "60d5ec49f1b2c72b9c8e4d3b" },
+          "productName": { "type": "string", "example": "Laptop ASUS ROG" },
+          "price": { "type": "number", "example": 15000000 },
+          "quantity": { "type": "integer", "example": 2 }
+        }
+      },
+      "OrderInput": {
+        "type": "object",
+        "required": ["userId", "items"],
+        "properties": {
+          "userId": { "type": "string", "description": "ID user dari User Service" },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["productId", "quantity"],
+              "properties": {
+                "productId": { "type": "string", "description": "ID produk dari Product Service" },
+                "quantity": { "type": "integer", "minimum": 1 }
+              }
+            }
+          }
+        }
+      },
+      "StatusInput": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["pending", "confirmed", "shipped", "delivered", "cancelled"],
+            "example": "confirmed"
+          }
+        }
+      }
+    }
+  }
+}

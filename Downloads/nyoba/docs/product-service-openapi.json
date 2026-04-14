@@ -1,0 +1,140 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Product Service API",
+    "version": "1.0.0",
+    "description": "Microservice untuk mengelola data produk pada sistem E-Commerce SOA"
+  },
+  "servers": [
+    { "url": "http://localhost:3002", "description": "Product Service" },
+    { "url": "http://localhost:3000", "description": "API Gateway" }
+  ],
+  "paths": {
+    "/api/products": {
+      "get": {
+        "summary": "Mendapatkan semua produk",
+        "tags": ["Products"],
+        "responses": {
+          "200": {
+            "description": "Daftar semua produk",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "count": { "type": "integer" },
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Product" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Menambahkan produk baru",
+        "tags": ["Products"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProductInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Produk berhasil ditambahkan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/Product" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Validasi gagal" }
+        }
+      }
+    },
+    "/api/products/{id}": {
+      "get": {
+        "summary": "Mendapatkan produk berdasarkan ID",
+        "tags": ["Products"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Data produk ditemukan" },
+          "404": { "description": "Produk tidak ditemukan" }
+        }
+      },
+      "put": {
+        "summary": "Mengupdate data produk",
+        "tags": ["Products"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProductInput" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Produk berhasil diupdate" },
+          "404": { "description": "Produk tidak ditemukan" }
+        }
+      },
+      "delete": {
+        "summary": "Menghapus produk",
+        "tags": ["Products"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Produk berhasil dihapus" },
+          "404": { "description": "Produk tidak ditemukan" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Product": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string", "example": "60d5ec49f1b2c72b9c8e4d3a" },
+          "name": { "type": "string", "example": "Laptop ASUS ROG" },
+          "description": { "type": "string", "example": "Laptop gaming dengan RTX 4060" },
+          "price": { "type": "number", "example": 15000000 },
+          "stock": { "type": "integer", "example": 50 },
+          "category": { "type": "string", "example": "Elektronik" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ProductInput": {
+        "type": "object",
+        "required": ["name", "price", "stock"],
+        "properties": {
+          "name": { "type": "string", "example": "Laptop ASUS ROG" },
+          "description": { "type": "string", "example": "Laptop gaming dengan RTX 4060" },
+          "price": { "type": "number", "example": 15000000 },
+          "stock": { "type": "integer", "example": 50 },
+          "category": { "type": "string", "example": "Elektronik" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "User Service API",
+    "version": "1.0.0",
+    "description": "Microservice untuk mengelola data pengguna (User) pada sistem E-Commerce SOA"
+  },
+  "servers": [
+    { "url": "http://localhost:3001", "description": "User Service" },
+    { "url": "http://localhost:3000", "description": "API Gateway" }
+  ],
+  "paths": {
+    "/api/users": {
+      "get": {
+        "summary": "Mendapatkan semua user",
+        "tags": ["Users"],
+        "responses": {
+          "200": {
+            "description": "Daftar semua user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "count": { "type": "integer", "example": 2 },
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/User" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Membuat user baru",
+        "tags": ["Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UserInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User berhasil dibuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/User" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Validasi gagal atau email sudah terdaftar" }
+        }
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "summary": "Mendapatkan user berdasarkan ID",
+        "tags": ["Users"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" }, "description": "User ID" }
+        ],
+        "responses": {
+          "200": { "description": "Data user ditemukan" },
+          "404": { "description": "User tidak ditemukan" }
+        }
+      },
+      "put": {
+        "summary": "Mengupdate data user",
+        "tags": ["Users"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UserInput" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "User berhasil diupdate" },
+          "404": { "description": "User tidak ditemukan" }
+        }
+      },
+      "delete": {
+        "summary": "Menghapus user",
+        "tags": ["Users"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "User berhasil dihapus" },
+          "404": { "description": "User tidak ditemukan" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string", "example": "60d5ec49f1b2c72b9c8e4d3a" },
+          "name": { "type": "string", "example": "John Doe" },
+          "email": { "type": "string", "example": "john@example.com" },
+          "phone": { "type": "string", "example": "081234567890" },
+          "address": { "type": "string", "example": "Jl. Merdeka No. 1, Jakarta" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "UserInput": {
+        "type": "object",
+        "required": ["name", "email", "phone"],
+        "properties": {
+          "name": { "type": "string", "example": "John Doe" },
+          "email": { "type": "string", "example": "john@example.com" },
+          "phone": { "type": "string", "example": "081234567890" },
+          "address": { "type": "string", "example": "Jl. Merdeka No. 1, Jakarta" }
+        }
+      }
+    }
+  }
+}

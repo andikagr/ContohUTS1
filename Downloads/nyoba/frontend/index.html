@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Commerce SOA Dashboard</title>
+  <meta name="description" content="Dashboard E-Commerce dengan arsitektur Service-Oriented Architecture (SOA)">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <span class="logo-icon">🛒</span>
+        <h1>E-Commerce <span class="highlight">SOA</span></h1>
+      </div>
+      <p class="subtitle">Service-Oriented Architecture Dashboard</p>
+    </div>
+  </header>
+
+  <!-- Architecture Info -->
+  <div class="arch-banner">
+    <div class="arch-item">
+      <span class="arch-badge gateway">Gateway</span>
+      <span>:3000</span>
+    </div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-item">
+      <span class="arch-badge user">User Service</span>
+      <span>:3001</span>
+    </div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-item">
+      <span class="arch-badge product">Product Service</span>
+      <span>:3002</span>
+    </div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-item">
+      <span class="arch-badge order">Order Service</span>
+      <span>:3003</span>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <nav class="tabs">
+    <button class="tab active" onclick="switchTab('users')" id="tab-users">
+      <span class="tab-icon">👤</span> Users
+    </button>
+    <button class="tab" onclick="switchTab('products')" id="tab-products">
+      <span class="tab-icon">📦</span> Products
+    </button>
+    <button class="tab" onclick="switchTab('orders')" id="tab-orders">
+      <span class="tab-icon">🛍️</span> Orders
+    </button>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="container">
+
+    <!-- ===== USERS TAB ===== -->
+    <section id="section-users" class="section active">
+      <div class="section-header">
+        <h2>Manajemen User</h2>
+        <button class="btn btn-primary" onclick="showForm('user')">+ Tambah User</button>
+      </div>
+
+      <!-- User Form -->
+      <div id="user-form" class="form-card hidden">
+        <h3 id="user-form-title">Tambah User Baru</h3>
+        <input type="hidden" id="user-edit-id">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="user-name">Nama</label>
+            <input type="text" id="user-name" placeholder="Masukkan nama lengkap">
+          </div>
+          <div class="form-group">
+            <label for="user-email">Email</label>
+            <input type="email" id="user-email" placeholder="contoh@email.com">
+          </div>
+          <div class="form-group">
+            <label for="user-phone">Telepon</label>
+            <input type="text" id="user-phone" placeholder="081234567890">
+          </div>
+          <div class="form-group">
+            <label for="user-address">Alamat</label>
+            <input type="text" id="user-address" placeholder="Alamat lengkap">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-success" onclick="saveUser()">💾 Simpan</button>
+          <button class="btn btn-secondary" onclick="hideForm('user')">Batal</button>
+        </div>
+      </div>
+
+      <!-- User Table -->
+      <div class="table-wrapper">
+        <table id="users-table">
+          <thead>
+            <tr>
+              <th>Nama</th>
+              <th>Email</th>
+              <th>Telepon</th>
+              <th>Alamat</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody">
+            <tr><td colspan="5" class="loading">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== PRODUCTS TAB ===== -->
+    <section id="section-products" class="section">
+      <div class="section-header">
+        <h2>Manajemen Produk</h2>
+        <button class="btn btn-primary" onclick="showForm('product')">+ Tambah Produk</button>
+      </div>
+
+      <!-- Product Form -->
+      <div id="product-form" class="form-card hidden">
+        <h3 id="product-form-title">Tambah Produk Baru</h3>
+        <input type="hidden" id="product-edit-id">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="product-name">Nama Produk</label>
+            <input type="text" id="product-name" placeholder="Nama produk">
+          </div>
+          <div class="form-group">
+            <label for="product-category">Kategori</label>
+            <input type="text" id="product-category" placeholder="Kategori">
+          </div>
+          <div class="form-group">
+            <label for="product-price">Harga (Rp)</label>
+            <input type="number" id="product-price" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label for="product-stock">Stok</label>
+            <input type="number" id="product-stock" placeholder="0">
+          </div>
+          <div class="form-group full-width">
+            <label for="product-description">Deskripsi</label>
+            <input type="text" id="product-description" placeholder="Deskripsi produk">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-success" onclick="saveProduct()">💾 Simpan</button>
+          <button class="btn btn-secondary" onclick="hideForm('product')">Batal</button>
+        </div>
+      </div>
+
+      <!-- Product Table -->
+      <div class="table-wrapper">
+        <table id="products-table">
+          <thead>
+            <tr>
+              <th>Nama</th>
+              <th>Kategori</th>
+              <th>Harga</th>
+              <th>Stok</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="products-tbody">
+            <tr><td colspan="5" class="loading">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== ORDERS TAB ===== -->
+    <section id="section-orders" class="section">
+      <div class="section-header">
+        <h2>Manajemen Order</h2>
+        <button class="btn btn-primary" onclick="showOrderForm()">+ Buat Order</button>
+      </div>
+
+      <!-- Order Form -->
+      <div id="order-form" class="form-card hidden">
+        <h3>Buat Order Baru</h3>
+        <p class="form-note">⚡ Order akan memanggil <strong>User Service</strong> dan <strong>Product Service</strong> untuk validasi</p>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="order-user">Pilih User</label>
+            <select id="order-user">
+              <option value="">-- Pilih User --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="order-product">Pilih Produk</label>
+            <select id="order-product">
+              <option value="">-- Pilih Produk --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="order-quantity">Jumlah</label>
+            <input type="number" id="order-quantity" placeholder="1" min="1" value="1">
+          </div>
+        </div>
+        <div id="order-items-list" class="order-items-list"></div>
+        <button class="btn btn-outline" onclick="addOrderItem()">+ Tambah Item</button>
+        <div class="form-actions">
+          <button class="btn btn-success" onclick="submitOrder()">🛍️ Buat Order</button>
+          <button class="btn btn-secondary" onclick="hideForm('order')">Batal</button>
+        </div>
+      </div>
+
+      <!-- Order Table -->
+      <div class="table-wrapper">
+        <table id="orders-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>User</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="orders-tbody">
+            <tr><td colspan="6" class="loading">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>E-Commerce SOA Microservice &mdash; Tugas UTS Enterprise Application Integration</p>
+    <div class="footer-links">
+      <a href="/api-docs" target="_blank">📖 API Gateway Docs</a>
+      <a href="http://localhost:3001/api-docs" target="_blank">👤 User API Docs</a>
+      <a href="http://localhost:3002/api-docs" target="_blank">📦 Product API Docs</a>
+      <a href="http://localhost:3003/api-docs" target="_blank">🛍️ Order API Docs</a>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
